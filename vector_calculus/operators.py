@@ -14,18 +14,18 @@ def gradient(x, y, A):
         raise ValueError("A should be a 2D array of size len(y) by len(x).")
     # preallocate output array
     g = np.zeros((len(y) - 1, len(x) - 1), dtype=np.complex128)
+    
     # loop through rows and take the partial derivative with respect to x
     for i, row in enumerate(A):
         if i is len(y) - 1:
             break
         g[i, :] += np.diff(row) / np.diff(x)
-        
     # loop through columns and take the partial derivative with respect to y
     for i, col in enumerate(A.T):
         if i is len(x) - 1:
             break
         g[:, i] += np.diff(col) / np.diff(y) * 1j
-        
+    
     return g
 
 def divergence(x, y, A):
@@ -37,12 +37,14 @@ def divergence(x, y, A):
         raise ValueError("A should be a 2D array of size len(y) by len(x).")
     # preallocate output array
     d = np.zeros((len(y) - 1, len(x) - 1))
+    
     # loop through rows and take the partial derivative of the y component 
     # with respect to x
     for i, row in enumerate(A):
         if i is len(y) - 1:
             break
         d[i, :] += np.diff(np.real(row)) / np.diff(x)
+    
     # loop through columns and take the partial derivative of the x component 
     # with respect to y
     for i, col in enumerate(A.T):
@@ -87,7 +89,8 @@ def laplacian(x, y, A):
     # determine if the input is a vector field or a scalar field. Each is
     # handled differently
     if A.dtype == np.complex128 or A.dtype == np.complex64:
-        # we have a vector field; preallocate vector output array
+        # we have a vector field; recurse upon each component (each component is
+        # a scalar field) to build vector output array
         L = laplacian(x, y, np.real(A)) + laplacian(x, y, np.imag(A)) * 1j
     else:
         # we have a scalar field; preallocate scalar output array
